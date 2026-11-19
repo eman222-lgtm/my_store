@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/auth_provider.dart';
 import 'favorites_screen.dart';
+import 'login_screen.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -10,9 +12,18 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
     const primary = Color(0xFF1B4332);
-    const gold = Color(0xFFC9A96E);
     const beige = Color(0xFFF5EFE6);
+
+    if (!auth.loaded) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (!auth.isLoggedIn) {
+      return const LoginScreen();
+    }
 
     return Scaffold(
       backgroundColor: theme.isDark ? Colors.grey[900] : beige,
@@ -64,17 +75,18 @@ class AccountScreen extends StatelessWidget {
                     child: const Icon(Icons.person, size: 50, color: primary),
                   ),
                   const SizedBox(height: 14),
-                  const Text(
-                    'Eman Al Omari',
+                  Text(
+                    auth.name ?? '',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: primary,
+                      color: theme.isDark ? Colors.white : primary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'eman.alomari@students.alquds.edu',
+                    auth.email ?? '',
+                    textDirection: TextDirection.ltr,
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[500],
@@ -214,7 +226,7 @@ class AccountScreen extends StatelessWidget {
                 onTap: () {
                   showDialog(
                     context: context,
-                    builder: (_) => AlertDialog(
+                    builder: (dialogContext) => AlertDialog(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -228,14 +240,18 @@ class AccountScreen extends StatelessWidget {
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.pop(dialogContext),
                           child: const Text(
                             'إلغاء',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
                         TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                            Provider.of<AuthProvider>(context, listen: false)
+                                .logout();
+                          },
                           child: const Text(
                             'خروج',
                             style: TextStyle(color: Colors.red),
@@ -315,7 +331,6 @@ class _AnimatedMenuItemState extends State<_AnimatedMenuItem>
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF1B4332);
     final theme = Provider.of<ThemeProvider>(context);
 
     return ScaleTransition(
