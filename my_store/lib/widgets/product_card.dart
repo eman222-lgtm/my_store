@@ -15,6 +15,9 @@ class ProductCard extends StatelessWidget {
     final cart = context.read<CartProvider>();
     final favProvider = context.watch<FavoriteProvider>();
     final isFav = favProvider.isFavorite(product);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const primary = Color(0xFF1B4332);
+    const gold = Color(0xFFC9A96E);
 
     return GestureDetector(
       onTap: onTap,
@@ -24,7 +27,7 @@ class ProductCard extends StatelessWidget {
           color: Theme.of(context).cardColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.deepPurple.withOpacity(0.1),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -40,9 +43,10 @@ class ProductCard extends StatelessWidget {
                   Hero(
                     tag: 'product-${product.id}',
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: const BorderRadius.vertical(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(
                           top: Radius.circular(20),
                         ),
                       ),
@@ -51,20 +55,20 @@ class ProductCard extends StatelessWidget {
                           top: Radius.circular(20),
                         ),
                         child: Padding(
-  padding: const EdgeInsets.all(12),
-  child: Image.network(
-    product.image,
-    width: double.infinity,
-    fit: BoxFit.contain,
-  ),
-),
+                          padding: const EdgeInsets.all(12),
+                          child: Image.network(
+                            product.image,
+                            width: double.infinity,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   // زر المفضلة
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    right: 8,
+                    end: 8,
                     child: GestureDetector(
                       onTap: () => favProvider.toggleFavorite(product),
                       child: Container(
@@ -100,10 +104,10 @@ class ProductCard extends StatelessWidget {
                     product.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -112,13 +116,13 @@ class ProductCard extends StatelessWidget {
                     children: [
                       Text(
                         '\$${product.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: Colors.deepPurple,
+                        style: TextStyle(
+                          color: isDark ? gold : primary,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
                       ),
-                      // زر اضافة للسلة
+                      // زر إضافة للسلة
                       GestureDetector(
                         onTap: () {
                           cart.addToCart(product);
@@ -126,7 +130,7 @@ class ProductCard extends StatelessWidget {
                             SnackBar(
                               content: const Text('✅ تمت الإضافة للسلة'),
                               duration: const Duration(seconds: 1),
-                              backgroundColor: Colors.deepPurple,
+                              backgroundColor: primary,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -137,7 +141,7 @@ class ProductCard extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.deepPurple,
+                            color: primary,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
+import '../models/arabic_products.dart';
 import '../providers/cart_provider.dart';
 import '../widgets/product_card.dart';
 import 'cart_screen.dart';
@@ -67,6 +68,12 @@ class _HomeScreenState extends State<HomeScreen> {
     fetchProducts();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> fetchProducts() async {
     try {
       final List<String> apis = [
@@ -87,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (response.statusCode == 200) {
           final List data = json.decode(response.body);
           allProducts.addAll(
-            data.map((e) => Product.fromJson(e)).toList(),
+            data.map((e) => toArabic(Product.fromJson(e))).toList(),
           );
         }
       }
@@ -156,23 +163,30 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const primary = Color(0xFF1B4332);
+    const gold = Color(0xFFC9A96E);
+    final cardColor = Theme.of(context).cardColor;
+    final headingColor = isDark ? Colors.white : primary;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EFE6),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF1B4332)),
+          ? Center(
+              child: CircularProgressIndicator(
+                color: isDark ? gold : primary,
+              ),
             )
           : CustomScrollView(
               slivers: [
                 SliverAppBar(
                   expandedHeight: 120,
                   floating: true,
-                  backgroundColor: Colors.white,
+                  backgroundColor: cardColor,
                   elevation: 0,
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
-                      color: Colors.white,
+                      color: cardColor,
                       padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -180,8 +194,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Text(
+                            children: [
+                              const Text(
                                 'مرحباً 👋',
                                 style: TextStyle(
                                   color: Colors.grey,
@@ -191,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 'My Store 🛍️',
                                 style: TextStyle(
-                                  color: Color(0xFF1B4332),
+                                  color: headingColor,
                                   fontSize: 26,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -212,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1B4332),
+                                    color: primary,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(
@@ -223,8 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               if (cart.itemCount > 0)
-                                Positioned(
-                                  right: 0,
+                                PositionedDirectional(
+                                  end: 0,
                                   top: 0,
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
@@ -261,12 +275,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: InputDecoration(
                             hintText: 'ابحث عن منتج...',
                             hintStyle: const TextStyle(fontSize: 13),
-                            prefixIcon: const Icon(
+                            prefixIcon: Icon(
                               Icons.search,
-                              color: Color(0xFF1B4332),
+                              color: headingColor,
                             ),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: cardColor,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
                               borderSide: BorderSide.none,
@@ -293,6 +307,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
                               gradient: LinearGradient(
+                                begin: AlignmentDirectional.centerStart,
+                                end: AlignmentDirectional.centerEnd,
                                 colors: [
                                   Colors.black.withOpacity(0.6),
                                   Colors.transparent,
@@ -305,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Text(
-                                  "Men's Collection",
+                                  'مجموعة الرجال',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 22,
@@ -313,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const Text(
-                                  'Style for every moment',
+                                  'أناقة تناسب كل لحظة',
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 13,
@@ -339,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       vertical: 8,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFC9A96E),
+                                      color: gold,
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: const Text(
@@ -357,14 +373,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           'الفئات',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1B4332),
+                            color: headingColor,
                           ),
                         ),
                       ),
@@ -410,8 +426,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -420,14 +436,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1B4332),
+                                color: headingColor,
                               ),
                             ),
-                            Text(
+                            const Text(
                               'عرض الكل',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Color(0xFFC9A96E),
+                                color: gold,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -513,6 +529,8 @@ class _CategoryItemState extends State<_CategoryItem>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) {
@@ -533,7 +551,7 @@ class _CategoryItemState extends State<_CategoryItem>
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Container(
-            margin: const EdgeInsets.only(right: 16),
+            margin: const EdgeInsetsDirectional.only(end: 16),
             child: Column(
               children: [
                 AnimatedContainer(
@@ -584,7 +602,9 @@ class _CategoryItemState extends State<_CategoryItem>
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: widget.cat['color'] as Color,
+                    color: isDark
+                        ? Colors.white70
+                        : widget.cat['color'] as Color,
                   ),
                 ),
               ],
