@@ -14,14 +14,14 @@ class FavoritesScreen extends StatelessWidget {
     final favorites = favProvider.favorites;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EFE6),
+      backgroundColor: const Color(0xFFF4F2FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'المفضلة',
           style: TextStyle(
-            color: Color(0xFF1B4332),
+            color: Color(0xFF6D3FC0),
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
@@ -157,7 +157,7 @@ class FavoritesScreen extends StatelessWidget {
                                   Text(
                                     '\$ ${product.price.toStringAsFixed(2)}',
                                     style: const TextStyle(
-                                      color: Color(0xFF1B4332),
+                                      color: Color(0xFF6D3FC0),
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
                                     ),
@@ -172,7 +172,7 @@ class FavoritesScreen extends StatelessWidget {
                                           content:
                                               const Text('✅ تمت الإضافة للسلة'),
                                           backgroundColor:
-                                              const Color(0xFF1B4332),
+                                              const Color(0xFF6D3FC0),
                                           behavior: SnackBarBehavior.floating,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
@@ -184,7 +184,7 @@ class FavoritesScreen extends StatelessWidget {
                                     child: Container(
                                       padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF1B4332),
+                                        color: const Color(0xFF6D3FC0),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: const Icon(

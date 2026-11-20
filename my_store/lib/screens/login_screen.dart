@@ -43,8 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeProvider>().isDark;
-    const primary = Color(0xFF1B4332);
-    const beige = Color(0xFFF5EFE6);
+    const primary = Color(0xFF6D3FC0);
+    const beige = Color(0xFFF7F9FC);
 
     return Scaffold(
       backgroundColor: isDark ? Colors.grey[900] : beige,

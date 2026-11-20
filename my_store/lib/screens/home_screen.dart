@@ -1,14 +1,80 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:ui' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../models/arabic_products.dart';
 import '../providers/cart_provider.dart';
 import '../widgets/product_card.dart';
+import '../widgets/press_scale.dart';
 import 'cart_screen.dart';
 import 'detail_screen.dart';
 import 'product_list_screen.dart';
+
+class _BannerSlide {
+  final String title;
+  final String subtitle;
+  final String button;
+  final List<Color> colors;
+  final List<IconData> icons;
+  final String? categoryName;
+  final String? categoryApi;
+
+  const _BannerSlide({
+    required this.title,
+    required this.subtitle,
+    required this.button,
+    required this.colors,
+    required this.icons,
+    this.categoryName,
+    this.categoryApi,
+  });
+}
+
+const List<_BannerSlide> _slides = [
+  _BannerSlide(
+    title: 'كل شي بمكان واحد',
+    subtitle: 'من الأزياء للإلكترونيات',
+    button: 'ابدأ التسوق',
+    colors: [Color(0xFF6D3FC0), Color(0xFF9F7AEA)],
+    icons: [
+      Icons.checkroom,
+      Icons.devices_other,
+      Icons.watch_outlined,
+      Icons.shopping_bag_outlined,
+    ],
+  ),
+  _BannerSlide(
+    title: 'تقنية بأسعار مناسبة',
+    subtitle: 'أجهزة وملحقات مختارة',
+    button: 'تصفّح الآن',
+    colors: [Color(0xFF4C2A85), Color(0xFF7B5CD6)],
+    icons: [
+      Icons.laptop_mac,
+      Icons.headphones_outlined,
+      Icons.smartphone,
+      Icons.camera_alt_outlined,
+    ],
+    categoryName: 'إلكترونيات',
+    categoryApi: 'electronics',
+  ),
+  _BannerSlide(
+    title: 'لمسة تكمّل إطلالتك',
+    subtitle: 'إكسسوارات أنيقة بتفاصيل مميزة',
+    button: 'شوف التشكيلة',
+    colors: [Color(0xFF5E5A78), Color(0xFFA09CBD)],
+    icons: [
+      Icons.watch_outlined,
+      Icons.auto_awesome,
+      Icons.star_outline,
+      Icons.favorite_border,
+    ],
+    categoryName: 'إكسسوارات',
+    categoryApi: 'jewelery',
+  ),
+];
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,43 +88,48 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Product> filteredProducts = [];
   bool isLoading = true;
   final TextEditingController _searchController = TextEditingController();
+  final GlobalKey _productsKey = GlobalKey();
+
+  final PageController _bannerController = PageController();
+  Timer? _bannerTimer;
+  int _bannerIndex = 0;
 
   final List<Map<String, dynamic>> categories = [
     {
       'name': 'رجالي',
       'api': "men's clothing",
       'image': 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=200',
-      'color': const Color(0xFF1B4332),
+      'color': const Color(0xFF6D3FC0),
     },
     {
       'name': 'نسائي',
       'api': "women's clothing",
       'image': 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=200',
-      'color': const Color(0xFFE91E8C),
+      'color': const Color(0xFFB45FD6),
     },
     {
       'name': 'إكسسوارات',
       'api': "jewelery",
       'image': 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200',
-      'color': const Color(0xFFC9A96E),
+      'color': const Color(0xFF9F7AEA),
     },
     {
       'name': 'إلكترونيات',
       'api': "electronics",
       'image': 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=200',
-      'color': const Color(0xFF2196F3),
+      'color': const Color(0xFF5B6CE0),
     },
     {
       'name': 'أحذية',
       'api': "shoes",
       'image': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200',
-      'color': const Color(0xFF795548),
+      'color': const Color(0xFF7E6BA8),
     },
     {
       'name': 'حقائب',
       'api': "bags",
       'image': 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200',
-      'color': const Color(0xFF5D4037),
+      'color': const Color(0xFF4C2A85),
     },
   ];
 
@@ -66,12 +137,28 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     fetchProducts();
+    _bannerTimer = Timer.periodic(
+      const Duration(seconds: 4),
+      (_) => _nextBanner(),
+    );
   }
 
   @override
   void dispose() {
+    _bannerTimer?.cancel();
+    _bannerController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _nextBanner() {
+    if (!_bannerController.hasClients) return;
+    final next = (_bannerIndex + 1) % _slides.length;
+    _bannerController.animateToPage(
+      next,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+    );
   }
 
   Future<void> fetchProducts() async {
@@ -142,12 +229,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ]);
 
+      if (!mounted) return;
       setState(() {
         products = allProducts;
         filteredProducts = allProducts;
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => isLoading = false);
     }
   }
@@ -160,21 +249,251 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _scrollToProducts() {
+    final ctx = _productsKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _goToCategory(String name, String api) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, animation, __) => ProductListScreen(
+          categoryName: name,
+          categoryApi: api,
+        ),
+        transitionsBuilder: (_, animation, __, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeInOut,
+            )),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  void _onSlideButton(_BannerSlide slide) {
+    if (slide.categoryApi == null) {
+      _scrollToProducts();
+    } else {
+      _goToCategory(slide.categoryName ?? '', slide.categoryApi!);
+    }
+  }
+
+  Widget _bannerIcon(IconData icon) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.14),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withOpacity(0.4)),
+      ),
+      child: Icon(icon, color: Colors.white, size: 24),
+    );
+  }
+
+  Widget _buildSlide(_BannerSlide slide) {
+    return GestureDetector(
+      onTap: _nextBanner,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: slide.colors,
+          ),
+        ),
+        child: Stack(
+          children: [
+            PositionedDirectional(
+              top: -40,
+              start: -40,
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.10),
+                ),
+              ),
+            ),
+            PositionedDirectional(
+              bottom: -50,
+              end: 90,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.25),
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+            PositionedDirectional(
+              end: 16,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: SizedBox(
+                  width: 110,
+                  child: Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: slide.icons.map(_bannerIcon).toList(),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(
+                start: 20,
+                top: 20,
+                bottom: 20,
+                end: 140,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    slide.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 19,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    slide.subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  PressScale(
+                    onTap: () => _onSlideButton(slide),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        slide.button,
+                        style: const TextStyle(
+                          color: Color(0xFF6D3FC0),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBanner(bool isDark) {
+    const primary = Color(0xFF6D3FC0);
+    const accent = Color(0xFFB794F4);
+    const silver = Color(0xFFC7CAD1);
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              dragDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.mouse,
+              },
+            ),
+            child: PageView.builder(
+              controller: _bannerController,
+              itemCount: _slides.length,
+              onPageChanged: (i) => setState(() => _bannerIndex = i),
+              itemBuilder: (_, i) => _buildSlide(_slides[i]),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(_slides.length, (i) {
+            final active = i == _bannerIndex;
+            return GestureDetector(
+              onTap: () => _bannerController.animateToPage(
+                i,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+              ),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                width: active ? 22 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: active ? (isDark ? accent : primary) : silver,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    const primary = Color(0xFF1B4332);
-    const gold = Color(0xFFC9A96E);
+    const primary = Color(0xFF6D3FC0);
+    const accent = Color(0xFFB794F4);
+    const silver = Color(0xFFC7CAD1);
+    const ink = Color(0xFF3B2475);
     final cardColor = Theme.of(context).cardColor;
-    final headingColor = isDark ? Colors.white : primary;
+    final headingColor = isDark ? Colors.white : ink;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: isLoading
           ? Center(
               child: CircularProgressIndicator(
-                color: isDark ? gold : primary,
+                color: isDark ? accent : primary,
               ),
             )
           : CustomScrollView(
@@ -196,14 +515,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text(
-                                'مرحباً 👋',
+                                'يا هلا فيكم',
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 14,
                                 ),
                               ),
                               Text(
-                                'My Store 🛍️',
+                                'سوقنا',
                                 style: TextStyle(
                                   color: headingColor,
                                   fontSize: 26,
@@ -214,7 +533,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Stack(
                             children: [
-                              GestureDetector(
+                              PressScale(
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -227,7 +546,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
                                     color: primary,
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
                                   child: const Icon(
                                     Icons.shopping_bag_outlined,
@@ -273,7 +592,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           controller: _searchController,
                           onChanged: filterProducts,
                           decoration: InputDecoration(
-                            hintText: 'ابحث عن منتج...',
+                            hintText: 'شو بتدوّر عليه؟',
                             hintStyle: const TextStyle(fontSize: 13),
                             prefixIcon: Icon(
                               Icons.search,
@@ -282,101 +601,35 @@ class _HomeScreenState extends State<HomeScreen> {
                             filled: true,
                             fillColor: cardColor,
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: silver.withOpacity(0.6),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide(
+                                color: silver.withOpacity(0.6),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: const BorderSide(
+                                color: accent,
+                                width: 1.5,
+                              ),
                             ),
                             contentPadding:
                                 const EdgeInsets.symmetric(vertical: 0),
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Container(
-                          height: 180,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            image: const DecorationImage(
-                              image: NetworkImage(
-                                'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800',
-                              ),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              gradient: LinearGradient(
-                                begin: AlignmentDirectional.centerStart,
-                                end: AlignmentDirectional.centerEnd,
-                                colors: [
-                                  Colors.black.withOpacity(0.6),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'مجموعة الرجال',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Text(
-                                  'أناقة تناسب كل لحظة',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            const ProductListScreen(
-                                          categoryName: 'ملابس رجالية',
-                                          categoryApi: "men's clothing",
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: gold,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: const Text(
-                                      'تسوق الآن',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                      _buildBanner(isDark),
                       const SizedBox(height: 24),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          'الفئات',
+                          'تصفّح الأقسام',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -396,58 +649,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             final cat = categories[index];
                             return _CategoryItem(
                               cat: cat,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (_, animation, __) =>
-                                        ProductListScreen(
-                                      categoryName: cat['name'],
-                                      categoryApi: cat['api'],
-                                    ),
-                                    transitionsBuilder:
-                                        (_, animation, __, child) {
-                                      return SlideTransition(
-                                        position: Tween<Offset>(
-                                          begin: const Offset(1, 0),
-                                          end: Offset.zero,
-                                        ).animate(CurvedAnimation(
-                                          parent: animation,
-                                          curve: Curves.easeInOut,
-                                        )),
-                                        child: child,
-                                      );
-                                    },
-                                  ),
-                                );
-                              },
+                              onTap: () => _goToCategory(
+                                cat['name'] as String,
+                                cat['api'] as String,
+                              ),
                             );
                           },
                         ),
                       ),
                       const SizedBox(height: 24),
                       Padding(
+                        key: _productsKey,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'أحدث المنتجات',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: headingColor,
-                              ),
-                            ),
-                            const Text(
-                              'عرض الكل',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: gold,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          'وصل حديثاً',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: headingColor,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -458,11 +678,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverGrid(
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 0.7,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
+                      childAspectRatio: 0.68,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
                     ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {

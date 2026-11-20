@@ -15,7 +15,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       'api': "men's clothing",
       'image':
           'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400',
-      'color': const Color(0xFF1B4332),
+      'color': const Color(0xFF6D3FC0),
     },
     {
       'name': 'ملابس نسائية',
@@ -29,7 +29,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       'api': "jewelery",
       'image':
           'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400',
-      'color': const Color(0xFFC9A96E),
+      'color': const Color(0xFFB794F4),
     },
     {
       'name': 'إلكترونيات',
@@ -60,7 +60,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EFE6),
+      backgroundColor: const Color(0xFFF7F9FC),
 
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -69,7 +69,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         title: const Text(
           'الفئات',
           style: TextStyle(
-            color: Color(0xFF1B4332),
+            color: Color(0xFF6D3FC0),
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
@@ -81,7 +81,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           IconButton(
             icon: const Icon(
               Icons.search,
-              color: Color(0xFF1B4332),
+              color: Color(0xFF6D3FC0),
             ),
             onPressed: () {},
           ),
@@ -202,7 +202,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         const Text(
                           'عرض الكل ←',
                           style: TextStyle(
-                            color: Color(0xFFC9A96E),
+                            color: Color(0xFFB794F4),
                             fontSize: 14,
                           ),
                         ),

@@ -32,10 +32,10 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // الألوان الرئيسية
-  static const primaryColor = Color(0xFF1B4332);
-  static const goldColor = Color(0xFFC9A96E);
-  static const beigeColor = Color(0xFFF5EFE6);
-  static const pinkBeige = Color(0xFFE8D5C4);
+  static const primaryColor = Color(0xFF6D3FC0);
+  static const goldColor = Color(0xFFB794F4);
+  static const beigeColor = Color(0xFFF7F9FC);
+  static const pinkBeige = Color.fromARGB(255, 219, 196, 232);
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +70,8 @@ class MyApp extends StatelessWidget {
           secondary: goldColor,
         ),
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFF0A0E0A),
-        cardColor: const Color(0xFF1A2E1A),
+        scaffoldBackgroundColor: const Color(0xFF1F1A2B),
+        cardColor: const Color(0xFF1F1A2B),
         fontFamily: 'Cairo',
       ),
       themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,

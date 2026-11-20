@@ -13,8 +13,8 @@ class AccountScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context);
     final auth = Provider.of<AuthProvider>(context);
-    const primary = Color(0xFF1B4332);
-    const beige = Color(0xFFF5EFE6);
+    const primary = Color(0xFF6D3FC0);
+    const beige = Color(0xFFF4F2FA);
 
     if (!auth.loaded) {
       return const Scaffold(
@@ -285,7 +285,7 @@ class _AnimatedMenuItem extends StatefulWidget {
     required this.icon,
     required this.label,
     required this.onTap,
-    this.iconColor = const Color(0xFF1B4332),
+    this.iconColor = const Color(0xFF6D3FC0),
     this.labelColor,
     this.showArrow = true,
   });

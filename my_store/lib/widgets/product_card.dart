@@ -16,8 +16,8 @@ class ProductCard extends StatelessWidget {
     final favProvider = context.watch<FavoriteProvider>();
     final isFav = favProvider.isFavorite(product);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    const primary = Color(0xFF1B4332);
-    const gold = Color(0xFFC9A96E);
+    const primary = Color(0xFF6D3FC0);
+    const gold = Color(0xFFB794F4);
 
     return GestureDetector(
       onTap: onTap,
@@ -128,7 +128,7 @@ class ProductCard extends StatelessWidget {
                           cart.addToCart(product);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text('✅ تمت الإضافة للسلة'),
+                              content: const Text('انضافت للسلة'),
                               duration: const Duration(seconds: 1),
                               backgroundColor: primary,
                               behavior: SnackBarBehavior.floating,

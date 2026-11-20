@@ -293,18 +293,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
     final cart = context.read<CartProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EFE6),
+      backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF1B4332)),
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF6D3FC0)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.categoryName,
           style: const TextStyle(
-            color: Color(0xFF1B4332),
+            color: Color(0xFF6D3FC0),
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -313,7 +313,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF1B4332)),
+              child: CircularProgressIndicator(color: Color(0xFF6D3FC0)),
             )
           : Column(
               children: [
@@ -330,10 +330,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       hintStyle: const TextStyle(fontSize: 13),
                       prefixIcon: const Icon(
                         Icons.search,
-                        color: Color(0xFF1B4332),
+                        color: Color(0xFF6D3FC0),
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF5EFE6),
+                      fillColor: const Color(0xFFF7F9FC),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -509,7 +509,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                               Text(
                                                 '\$ ${product.price.toStringAsFixed(2)}',
                                                 style: const TextStyle(
-                                                  color: Color(0xFF1B4332),
+                                                  color: Color(0xFF6D3FC0),
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 14,
                                                 ),
@@ -544,7 +544,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                                     content: const Text(
                                                         '✅ تمت الإضافة للسلة'),
                                                     backgroundColor:
-                                                        const Color(0xFF1B4332),
+                                                        const Color(0xFF6D3FC0),
                                                     behavior: SnackBarBehavior
                                                         .floating,
                                                     shape:
@@ -560,7 +560,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
-                                                    const Color(0xFF1B4332),
+                                                    const Color(0xFF6D3FC0),
                                                 foregroundColor: Colors.white,
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -659,18 +659,18 @@ class _FilterChipState extends State<_FilterChip>
           ),
           decoration: BoxDecoration(
             color: widget.isSelected
-                ? const Color(0xFF1B4332)
-                : const Color(0xFFF5EFE6),
+                ? const Color(0xFF6D3FC0)
+                : const Color(0xFFF7F9FC),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: widget.isSelected
-                  ? const Color(0xFF1B4332)
+                  ? const Color(0xFF6D3FC0)
                   : Colors.grey.shade300,
             ),
             boxShadow: widget.isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF1B4332).withOpacity(0.3),
+                      color: const Color(0xFF6D3FC0).withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),

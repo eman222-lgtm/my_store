@@ -109,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen>
                       const Text(
                         'Your Style, Our Priority',
                         style: TextStyle(
-                          color: Color(0xFFC9A96E),
+                          color: Color(0xFFB794F4),
                           fontSize: 18,
                           letterSpacing: 1,
                         ),
@@ -129,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFC9A96E),
+                            color: const Color(0xFFB794F4),
                             borderRadius: BorderRadius.circular(50),
                           ),
                           child: const Row(
